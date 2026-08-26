@@ -1,0 +1,47 @@
+[submodule "apps/fanwaave-api-server.rs"]
+	path = apps/fanwaave-api-server.rs
+	url = https://github.com/fanwaave/fanwaave-api-server.rs.git
+
+[submodule "apps/fanwaave-web-server.rs"]
+	path = apps/fanwaave-web-server.rs
+	url = https://github.com/fanwaave/fanwaave-web-server.rs.git
+
+[submodule "apps/fanwaave-infra"]
+	path = apps/fanwaave-infra
+	url = https://github.com/fanwaave/fanwaave-infra.git
+
+[submodule "apps/fanwaave-lib-core"]
+	path = apps/fanwaave-lib-core
+	url = https://github.com/fanwaave/fanwaave-lib-core.git
+
+[submodule "apps/fanwaave-interfaces"]
+	path = apps/fanwaave-interfaces
+	url = https://github.com/fanwaave/fanwaave-interfaces.git
+
+[submodule "apps/fanwaave-clients"]
+	path = apps/fanwaave-clients
+	url = https://github.com/fanwaave/fanwaave-clients.git
+
+[submodule "apps/fanwaave-cli"]
+	path = apps/fanwaave-cli
+	url = https://github.com/fanwaave/fanwaave-cli.git
+
+[submodule "apps/fanwaave-sync"]
+	path = apps/fanwaave-sync
+	url = https://github.com/fanwaave/fanwaave-sync.git
+
+[submodule "apps/fanwaave-e2e"]
+	path = apps/fanwaave-e2e
+	url = https://github.com/fanwaave/fanwaave-e2e.git
+
+[submodule "apps/fanwaave-flutter"]
+	path = apps/fanwaave-flutter
+	url = https://github.com/fanwaave/fanwaave-flutter.git
+
+[submodule "apps/fanwaave-desktop-app.rs"]
+	path = apps/fanwaave-desktop-app.rs
+	url = https://github.com/fanwaave/fanwaave-desktop-app.rs.git
+
+[submodule "apps/fanwaave-sidecar.rs"]
+	path = apps/fanwaave-sidecar.rs
+	url = https://github.com/fanwaave/fanwaave-sidecar.rs.git
