@@ -3,10 +3,11 @@
 /build
 /.dart_tool
 /coverage
+tmp/
+temp/
 .DS_Store
 .env
 .env.*
 !.env.example
 *.sqlite
 Cargo.lock
-
