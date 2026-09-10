@@ -1,0 +1,33 @@
+schemaVersion = "ores.rate-limit.config.v1"
+layout = "combined"
+defaultPolicyId = "default"
+
+[client]
+root = "."
+exposePolicyMetadata = true
+
+[server]
+root = "."
+backend = "local"
+enforcementLayer = "service"
+keyHmacEnv = "ORES_RL_HMAC_KEY"
+
+[[policies]]
+policyId = "default"
+clientVisible = true
+algorithm = "token-bucket"
+identityScope = "anonymous-ip"
+capacity = 120
+windowMs = 0
+refillTokens = 120
+refillIntervalMs = 60000
+requestCost = 1
+enforcementMode = "observe-only"
+consistencyMode = "advisory"
+backendFailureMode = "fail-open"
+denyCacheMode = "local-denials"
+denyCacheCapacity = 1024
+maxOvershoot = 120
+maxBlockTtlMs = 60000
+keyVersion = "v1"
+policyVersion = 1

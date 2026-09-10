@@ -1,0 +1,35 @@
+[help]
+url = "https://github.com/fanwaave/fanwaave-monorepo"
+columns = ["options", "env", "type", "default", "description"]
+
+[env]
+load = false
+
+[parse]
+allow_unknown = false
+
+[flags.api_base_url]
+env = "FANWAAVE_API_BASE_URL"
+aliases = ["api-base-url"]
+type = "string"
+help = "Public Fanwaave API base URL."
+
+[flags.tenant_id]
+env = "FANWAAVE_TENANT_ID"
+aliases = ["tenant-id"]
+type = "string"
+help = "Fanwaave tenant identifier."
+
+[flags.bind_addr]
+env = "FANWAAVE_BIND_ADDR"
+aliases = ["bind-addr"]
+type = "string"
+default = "0.0.0.0:8080"
+help = "Server bind address."
+
+[flags.push_provider]
+env = "FANWAAVE_PUSH_PROVIDER"
+aliases = ["push-provider"]
+type = "string"
+default = "fcm"
+help = "Push provider selector."
