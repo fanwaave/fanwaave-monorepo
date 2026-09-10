@@ -1,0 +1,83 @@
+name: runtime config suite
+
+on:
+  pull_request:
+    paths:
+      - '.auth-shared.toml'
+      - '.cli-flags.toml'
+      - '.fanwaave-cfg.toml'
+      - '.ores-lru.toml'
+      - '.ores-mw.toml'
+      - '.ores-otel.toml'
+      - '.ores-rl.toml'
+      - 'scripts/check_runtime_config_suite.py'
+      - '.github/workflows/runtime-config-suite.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.auth-shared.toml'
+      - '.cli-flags.toml'
+      - '.fanwaave-cfg.toml'
+      - '.ores-lru.toml'
+      - '.ores-mw.toml'
+      - '.ores-otel.toml'
+      - '.ores-rl.toml'
+      - 'scripts/check_runtime_config_suite.py'
+      - '.github/workflows/runtime-config-suite.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-config-suite-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact Fanwaave candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          path: fanwaave-monorepo
+
+      - name: Verify exact reviewed head
+        working-directory: fanwaave-monorepo
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - name: Check out canonical flags2env compatibility target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: flags-2-env/flags-2-env
+          ref: 333c2ace93c362d274171ab0e0edf613d96a8e59
+          persist-credentials: false
+          path: flags-2-env
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Validate runtime TOML semantics
+        working-directory: fanwaave-monorepo
+        run: python3 scripts/check_runtime_config_suite.py
+
+      - name: Build canonical native flags parser
+        working-directory: flags-2-env
+        run: make all
+
+      - name: Audit Fanwaave CLI contract
+        run: flags-2-env/build/flags2env audit fanwaave-monorepo/.cli-flags.toml
+
+      - name: Prove validation did not mutate source
+        run: |
+          set -euo pipefail
+          git -C fanwaave-monorepo diff --exit-code HEAD
+          # flags2env intentionally rebuilds tracked compatibility artifacts under build/.
+          git -C flags-2-env diff --exit-code HEAD -- . ':(exclude)build/**'
