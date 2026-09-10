@@ -14,6 +14,7 @@ FILES = (
     ".ores-mw.toml",
     ".ores-rl.toml",
     ".ores-lru.toml",
+    ".ores-otel.toml",
     ".auth-shared.toml",
     ".fanwaave-cfg.toml",
     ".cli-flags.toml",
@@ -98,6 +99,51 @@ def check_lru(value: dict[str, Any]) -> None:
     need(roles == {"client", "server"}, "lru:client-server-cache-required")
 
 
+def check_otel(value: dict[str, Any], cli: dict[str, Any]) -> None:
+    need(value.get("version") == 1 and value.get("mode") == "hybrid", "otel:hybrid-v1")
+    need(value.get("strict") is True, "otel:strict-required")
+    flags2env = value.get("flags2env")
+    need(isinstance(flags2env, dict), "otel:flags2env-required")
+    need(flags2env.get("contract") == ".cli-flags.toml", "otel:cli-contract")
+    need(flags2env.get("require_audit") is True, "otel:flags2env-audit-required")
+    need(flags2env.get("precedence") == "argv-over-env", "otel:precedence")
+
+    env_entries = value.get("env")
+    need(isinstance(env_entries, list) and env_entries, "otel:env-bindings-required")
+    by_name: dict[str, dict[str, Any]] = {}
+    secret_envs: set[str] = set()
+    for entry in env_entries:
+        need(isinstance(entry, dict), "otel:env-object-required")
+        name, key = entry.get("name"), entry.get("key")
+        need(isinstance(name, str) and name and name not in by_name, "otel:unique-binding-name-required")
+        need(isinstance(key, str) and ENV_KEY.fullmatch(key) is not None, "otel:env-key-name-required")
+        by_name[name] = entry
+        if entry.get("secret") is True:
+            need("default" not in entry, "otel:secret-default-forbidden")
+            secret_envs.add(key)
+
+    headers = by_name.get("otlp_headers")
+    need(isinstance(headers, dict) and headers.get("key") == "OTEL_EXPORTER_OTLP_HEADERS", "otel:headers-binding")
+    need(headers.get("secret") is True, "otel:headers-must-be-secret")
+
+    client = value.get("client")
+    server = value.get("server")
+    need(isinstance(client, dict) and client.get("enabled") is True, "otel:client-enabled")
+    need(isinstance(server, dict) and server.get("enabled") is True, "otel:server-enabled")
+    need("otlp_endpoint_binding" not in client and "otlp_headers_binding" not in client, "otel:client-export-secret-projection-forbidden")
+    need(server.get("otlp_headers_binding") == "otlp_headers", "otel:server-headers-binding")
+
+    for role_name, role in (("client", client), ("server", server)):
+        for field, binding in role.items():
+            if field.endswith("_binding"):
+                need(isinstance(binding, str) and binding in by_name, f"otel:{role_name}:unknown-binding:{field}")
+
+    flags = cli.get("flags")
+    need(isinstance(flags, dict), "flags2env:flags-required")
+    flag_envs = {definition.get("env") for definition in flags.values() if isinstance(definition, dict)}
+    need(not (secret_envs & flag_envs), "otel:secret-env-must-not-be-cli-flag")
+
+
 def check_shared_auth(value: dict[str, Any]) -> None:
     need(not (ROOT / ".shared-auth.toml").exists(), "auth:dual-alias-presence-forbidden")
     need(value.get("schema_version") == 1, "auth:schema-version")
@@ -148,6 +194,7 @@ def main() -> int:
     check_middleware(values[".ores-mw.toml"])
     check_rate_limit(values[".ores-rl.toml"])
     check_lru(values[".ores-lru.toml"])
+    check_otel(values[".ores-otel.toml"], values[".cli-flags.toml"])
     check_shared_auth(values[".auth-shared.toml"])
     check_fanwaave(values[".fanwaave-cfg.toml"], values[".cli-flags.toml"])
     receipt = {
