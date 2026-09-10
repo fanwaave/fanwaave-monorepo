@@ -1,0 +1,35 @@
+protocol = "ores.lru-config.v1"
+namespace = "fanwaave"
+roles = ["client", "server"]
+
+[redis]
+urlEnv = "REDIS_URL"
+keyPrefix = "ores:lru:fanwaave"
+pubsubChannel = "ores:lru:fanwaave:events"
+reconcileIntervalMs = 180000
+reconnectMinMs = 1000
+reconnectMaxMs = 30000
+
+[defaults]
+capacity = 1024
+syncMode = "local_only"
+overflowMode = "evict_lru"
+failOpenOnStartup = false
+
+[[roleOverrides]]
+role = "server"
+syncMode = "read_only"
+overflowMode = "reject_and_reconcile"
+
+[[caches]]
+name = "runtime-env"
+role = "client"
+capacity = 256
+syncMode = "local_only"
+
+[[caches]]
+name = "runtime-env"
+role = "server"
+capacity = 1024
+syncMode = "read_only"
+overflowMode = "reject_and_reconcile"
