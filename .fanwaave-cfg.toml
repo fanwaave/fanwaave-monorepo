@@ -1,0 +1,65 @@
+version = 1
+mode = "hybrid"
+strict = true
+
+[flags2env]
+contract = ".cli-flags.toml"
+require_audit = true
+precedence = "argv-over-env"
+
+[client]
+enabled = true
+api_base_url_binding = "api_base_url"
+tenant_id_binding = "tenant_id"
+auth_token_binding = "auth_token"
+
+[server]
+enabled = true
+bind_addr_binding = "bind_addr"
+database_url_binding = "database_url"
+push_provider_binding = "push_provider"
+
+[[env]]
+name = "api_base_url"
+key = "FANWAAVE_API_BASE_URL"
+kind = "url"
+required = true
+secret = false
+default = "https://api.fanwaave.example"
+
+[[env]]
+name = "tenant_id"
+key = "FANWAAVE_TENANT_ID"
+kind = "string"
+required = true
+secret = false
+
+[[env]]
+name = "auth_token"
+key = "FANWAAVE_AUTH_TOKEN"
+kind = "string"
+required = true
+secret = true
+
+[[env]]
+name = "bind_addr"
+key = "FANWAAVE_BIND_ADDR"
+kind = "string"
+required = false
+secret = false
+default = "0.0.0.0:8080"
+
+[[env]]
+name = "database_url"
+key = "DATABASE_URL"
+kind = "url"
+required = true
+secret = true
+
+[[env]]
+name = "push_provider"
+key = "FANWAAVE_PUSH_PROVIDER"
+kind = "string"
+required = false
+secret = false
+default = "fcm"
