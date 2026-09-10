@@ -1,0 +1,18 @@
+# TJSV-admitted ORES middleware orchestration.
+# Same-root hybrid repos require explicit target selection; no role is guessed from paths.
+schema_version = 1
+repository_mode = "hybrid"
+allow_overlapping_roots = true
+
+[[targets]]
+name = "server"
+role = "server"
+roots = ["."]
+middleware = "disabled"
+
+[[targets]]
+name = "client"
+role = "client"
+roots = ["."]
+middleware = "propagation-only"
+propagate_headers = ["traceparent", "tracestate", "baggage", "x-request-id"]
