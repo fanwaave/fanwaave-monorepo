@@ -1,0 +1,20 @@
+# ORES middleware repository contract.
+# Contract/runtime baseline: ORESoftware/ores-middleware@ee75f0a67cf23895500846402fbc757aa0686530.
+# This monorepo intentionally exercises the same-root hybrid case; callers must select a target explicitly when inference is ambiguous.
+schema_version = 1
+repository_mode = "hybrid"
+allow_overlapping_roots = true
+default_target = "client"
+
+[[targets]]
+name = "server"
+role = "server"
+roots = ["."]
+middleware = "disabled"
+
+[[targets]]
+name = "client"
+role = "client"
+roots = ["."]
+middleware = "propagation-only"
+propagate_headers = ["traceparent", "tracestate", "baggage", "x-request-id"]
